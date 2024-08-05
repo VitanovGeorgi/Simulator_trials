@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import pdb
 import minVar
 import Functions as F
-import SyntheticProblem as Construction
-#import MovieLensProblem as Construction
+# import SyntheticProblem as Construction
+import MovieLensProblem as Construction
 import pandas as pd
 import time
 
@@ -22,6 +22,10 @@ D = Construction.D
 l = Construction.l
 Theta = Construction.Theta
 c = Construction.c
+
+''' c is 100 x 30 x 3, i.e. M x K x D, where we have for every client, 30 arms, 
+    and every arm has a 3-dimensional feature vector which is x_{i,a} in the paper =: c[i, a].
+'''
 
 def Fed_PE(c, Theta, horizon):
     print('Fed-PE begins: ')
@@ -54,14 +58,20 @@ def Fed_PE(c, Theta, horizon):
     n = 0
     
     # Initialization
+    ''' For every client, pull each arm once.
+    '''
     local_information = np.zeros([m, k, d]) + Max
     for i in range(m):
         for a in range(k):
             Y[i,a] += F.PullArm(a, c[i,a], Theta, 1)
             T[i,1] += 1
-            local_information[i,a] = c[i,a] * Y[i,a] / (c[i,a].dot(c[i,a]))
+            local_information[i,a] = c[i,a] * Y[i,a] / (c[i,a].dot(c[i,a])) # this is \hat{theta_{i, a}}^0 in the paper
             E[i,a] = local_information[i,a] / np.sqrt(local_information[i,a].dot(local_information[i,a]))
     A, R = F.PotentialSets(local_potential)
+    ''' Broadcast will aggregate all the thetas that were pulled in the first phase.
+        Then it'll send back the aggregated thetas to the clients in the form of messages. 
+        Messages is just the "averaged"  thetas.
+    '''
     messages, var_matrix = F.Broadcast(1, local_information, messages, pi+1, A, R)
 
     for p in range(1, horizon):
@@ -71,6 +81,9 @@ def Fed_PE(c, Theta, horizon):
         pi0 = np.zeros([m, k])
         
         # Arm Elimination
+        ''' Keep in mind that so far, we've assessed the best option for each client, which means we've M "potential" arms.
+            We need to eliminate them to K arms.
+        '''
         for i in range(m):
             B,C = F.Estimation(c, i, p, n, messages, var_matrix, Y, T, A, R)
             b = max( (v, b) for b, v in enumerate(B) )[1]

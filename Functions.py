@@ -106,8 +106,12 @@ def Broadcast(p, loc_info, messages, pi, A, R):
             if ((loc_info[i,arm,:] == (np.zeros([d])+Max)).all()):
                 X += np.zeros([d,d])
             else:
+                ''' X is V­_{a}^{p+1} in the paper, the global aggregate of the local thetas.
+                '''
                 X += Int(pi[i,arm]*f(p-1))*loc_info[i,arm].reshape([d,1]).dot(loc_info[i,arm].reshape([1,d]))/loc_info[i,arm].dot(loc_info[i,arm]) 
-                sum_theta += Int(pi[i,arm]*f(p-1))*loc_info[i,arm]
+                '''The thing in the brackets in eq. 4 for algo 2.
+                '''
+                sum_theta += Int(pi[i,arm]*f(p-1))*loc_info[i,arm] 
         var_matrix = X
         theta_hat = sum_theta.dot(np.linalg.pinv(var_matrix/f(p-1)))/f(p-1)
         messages[0][arm] = theta_hat
