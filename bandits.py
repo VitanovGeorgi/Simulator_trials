@@ -26,7 +26,6 @@ class PFEDUCB(object):
         ]
         self.server = server(narms=self.K, nclients = self.M)
 
-
     def simulate_single_step_rewards(self):
         if self.reward_type == 'Bernoulli':
             return np.random.binomial(1, self.local_means)
@@ -124,3 +123,9 @@ class PFEDUCB(object):
 
     def get_clients(self):
         return self.clients
+    
+    def update_means(self, means):
+        self.local_means = means
+        self.global_means = (self.global_means + np.sum(self.local_means, axis=0)/self.M) / 2   
+        # for i in range(self.M):
+        #     self.clients[i].update_means(means[i], self.local_means[i])

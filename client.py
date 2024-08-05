@@ -103,7 +103,9 @@ class client(object):
         self.gphase = 0
         self.g_exploration = (len(self.global_set)==0)
         
-            
+    def update_means(self, local_means_update, global_means_update):
+        self.local_mean = local_means_update
+        # self.global_mean = global_means_update
             
     
             
