@@ -6,11 +6,15 @@ import numpy as np
 class client(object):
     def __init__(self,
                  index,
+                 cohort_id,
+                 tstart,
                  thorizon,
                  narms,
                  nclients,
                  palpha,
                  fp):
+        self.t_0 = tstart
+        self.cohort_id = cohort_id
         self.T = thorizon
         self.id = index
         self.K = narms
